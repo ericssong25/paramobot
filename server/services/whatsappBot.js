@@ -133,7 +133,7 @@ class WhatsAppBot {
 
       // Handle authentication
       this.client.on('authenticated', () => {
-        console.log('🔐 WhatsApp authenticated successfully');
+        console.log('🔐 EVENTO AUTHENTICATED DISPARADO - WhatsApp authenticated successfully');
         this.qrCodeDataUrl = null;
         
         // Emit status update
@@ -209,7 +209,7 @@ class WhatsAppBot {
 
       // Handle ready event
       this.client.on('ready', async () => {
-        console.log('✅ WhatsApp Bot is ready!');
+        console.log('🎉 EVENTO READY DISPARADO - WhatsApp Bot is ready!');
         this.isReady = true;
         this.isConnected = true;
         this.qrCodeDataUrl = null;
@@ -250,6 +250,17 @@ class WhatsAppBot {
           qrCode: null,
           message: 'WhatsApp connected successfully!'
         });
+        
+        // Force status check after a delay
+        setTimeout(() => {
+          console.log('🔄 Forcing status check after ready event...');
+          this.emitStatusUpdate({
+            isConnected: true,
+            isReady: true,
+            qrCode: null,
+            message: 'WhatsApp connected successfully!'
+          });
+        }, 2000);
       });
 
 
@@ -1316,6 +1327,11 @@ class WhatsAppBot {
 
   async getStatus() {
     try {
+      // Force connection check if we have a client but aren't marked as connected
+      if (this.client && !this.isConnected) {
+        await this.forceConnectionCheck();
+      }
+      
       // Get flows info for debugging
       const flows = await this.flowService.getAllFlows();
       const activeFlows = flows.filter(flow => flow.is_active);
@@ -1350,6 +1366,40 @@ class WhatsAppBot {
         error: error.message
       };
     }
+  }
+
+  // Force connection check
+  async forceConnectionCheck() {
+    console.log('🔍 Forcing connection check...');
+    
+    if (this.client && this.client.pupPage) {
+      try {
+        // Check if WhatsApp Web is loaded and authenticated
+        const isAuthenticated = await this.client.pupPage.evaluate(() => {
+          return window.Store && window.Store.State && window.Store.State.default.state === 'CONNECTED';
+        });
+        
+        if (isAuthenticated && !this.isConnected) {
+          console.log('🎉 WhatsApp is authenticated but not marked as connected. Fixing...');
+          this.isConnected = true;
+          this.isReady = true;
+          this.qrCodeDataUrl = null;
+          
+          this.emitStatusUpdate({
+            isConnected: true,
+            isReady: true,
+            qrCode: null,
+            message: 'WhatsApp connected successfully!'
+          });
+          
+          return true;
+        }
+      } catch (error) {
+        console.error('Error checking connection:', error);
+      }
+    }
+    
+    return false;
   }
 
   async disconnect() {
