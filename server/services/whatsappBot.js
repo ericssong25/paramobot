@@ -102,10 +102,29 @@ class WhatsAppBot {
               '--use-mock-keychain',
               '--disable-blink-features=AutomationControlled',
               '--memory-pressure-off',
-              '--max_old_space_size=4096'
+              '--max_old_space_size=512',
+              '--disable-background-timer-throttling',
+              '--disable-backgrounding-occluded-windows',
+              '--disable-renderer-backgrounding',
+              '--disable-features=TranslateUI',
+              '--disable-ipc-flooding-protection',
+              '--disable-hang-monitor',
+              '--disable-prompt-on-repost',
+              '--disable-client-side-phishing-detection',
+              '--disable-component-extensions-with-background-pages',
+              '--disable-domain-reliability',
+              '--disable-features=AudioServiceOutOfProcess',
+              '--disable-print-preview',
+              '--force-color-profile=srgb',
+              '--metrics-recording-only',
+              '--safebrowsing-disable-auto-update',
+              '--enable-automation',
+              '--password-store=basic',
+              '--use-mock-keychain',
+              '--disable-blink-features=AutomationControlled'
             ],
-            timeout: 120000,
-            protocolTimeout: 120000,
+            timeout: 300000,
+            protocolTimeout: 300000,
             executablePath: process.env.CHROME_BIN || undefined
           }
         });

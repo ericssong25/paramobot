@@ -13,7 +13,7 @@ services:
       - key: WHATSAPP_HEADLESS
         value: true
       - key: WHATSAPP_TIMEOUT
-        value: 120000
+        value: 300000
       - key: PROCESS_OLD_MESSAGES
         value: false
       - key: IGNORE_GROUP_MESSAGES
